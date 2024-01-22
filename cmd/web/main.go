@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"html/template"
 	"log"
@@ -19,6 +20,16 @@ import (
 // 🔥 https://makersuite.google.com/app/apikey 🔥
 // This can also be provided as the API_KEY environment variable.
 var apiKey = "TODO"
+
+func usage() {
+	fmt.Fprintf(os.Stderr, "usage: web [options]\n")
+	flag.PrintDefaults()
+	os.Exit(2)
+}
+
+var (
+	addr = flag.String("addr", "localhost:8080", "address to serve")
+)
 
 func generateHandler(w http.ResponseWriter, r *http.Request, model *genai.GenerativeModel) {
 	if apiKey == "TODO" {
@@ -85,6 +96,17 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	// Parse flags.
+	flag.Usage = usage
+	flag.Parse()
+
+	// Parse and validate arguments (none).
+	args := flag.Args()
+	if len(args) != 0 {
+		usage()
+	}
+
+	// Get the Gemini API key from the environment.
 	if key := os.Getenv("API_KEY"); key != "" {
 		apiKey = key
 	}
@@ -107,5 +129,5 @@ func main() {
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 	http.HandleFunc("/api/generate", func(w http.ResponseWriter, r *http.Request) { generateHandler(w, r, model) })
 	http.HandleFunc("/", indexHandler)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(*addr, nil))
 }
