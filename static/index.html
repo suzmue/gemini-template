@@ -15,7 +15,7 @@
 				{{range $i, $img := .Images}}
 				<label class="image-choice">
 					<input type="radio" {{if eq $i 0}} checked {{end}} name="chosen-image" value="{{$img}}">
-					<img src="/{{.}}">
+					<img src="/static/images/{{.}}">
 				</label>
 				{{end}}
 			</div>
