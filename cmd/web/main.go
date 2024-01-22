@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"regexp"
 
 	"github.com/google/generative-ai-go/genai"
 	"google.golang.org/api/iterator"
@@ -19,21 +18,16 @@ import (
 // 🔥 GET YOUR GEMINI API KEY AT 🔥
 // 🔥 https://makersuite.google.com/app/apikey 🔥
 // This can also be provided as the API_KEY environment variable.
-var API_KEY = "TODO"
+var apiKey = "TODO"
 
 func generateHandler(w http.ResponseWriter, r *http.Request, model *genai.GenerativeModel) {
-	if API_KEY == "TODO" {
+	if apiKey == "TODO" {
 		http.Error(w, "Error: To get started, get an API key at https://makersuite.google.com/app/apikey and enter it in main.go", http.StatusInternalServerError)
 		return
 	}
 
 	image, prompt := r.FormValue("chosen-image"), r.FormValue("prompt")
-
-	if matched, err := regexp.MatchString(`^static/images/baked_goods_\d+.jpeg$`, image); !matched || err != nil {
-		http.Error(w, "Error: invalid image", http.StatusNotFound)
-		return
-	}
-	contents, err := os.ReadFile(image)
+	contents, err := os.ReadFile(filepath.Join("static", "images", filepath.Base(image)))
 	if err != nil {
 		log.Printf("Unable to read image %s: %v\n", image, err)
 		http.Error(w, "Error: unable to generate content", http.StatusInternalServerError)
@@ -72,12 +66,15 @@ type Page struct {
 var tmpl = template.Must(template.ParseFiles("static/index.html"))
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	matches, err := filepath.Glob("static/images/baked_goods_*.jpeg")
+	// Load all baked goods images from the static/images directory.
+	matches, err := filepath.Glob(filepath.Join("static", "images", "baked_goods_*.jpeg"))
 	if err != nil {
 		log.Printf("Error loading baked goods images: %v", err)
-
 	}
-	page := &Page{Images: matches}
+	var page = &Page{Images: make([]string, len(matches))}
+	for i, match := range matches {
+		page.Images[i] = filepath.Base(match)
+	}
 	switch r.URL.Path {
 	case "/":
 		err = tmpl.Execute(w, page)
@@ -89,10 +86,10 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	if key := os.Getenv("API_KEY"); key != "" {
-		API_KEY = key
+		apiKey = key
 	}
 
-	client, err := genai.NewClient(context.Background(), option.WithAPIKey(API_KEY))
+	client, err := genai.NewClient(context.Background(), option.WithAPIKey(apiKey))
 	if err != nil {
 		log.Println(err)
 	}
@@ -110,5 +107,5 @@ func main() {
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 	http.HandleFunc("/api/generate", func(w http.ResponseWriter, r *http.Request) { generateHandler(w, r, model) })
 	http.HandleFunc("/", indexHandler)
-	panic(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
