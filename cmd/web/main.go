@@ -22,7 +22,7 @@ import (
 var apiKey = "TODO"
 
 func usage() {
-	fmt.Fprintf(os.Stderr, "usage: web [options]\n")
+	fmt.Fprintf(flag.CommandLine.Output(), "usage: web [options]\n")
 	flag.PrintDefaults()
 	os.Exit(2)
 }
