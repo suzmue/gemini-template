@@ -17,7 +17,7 @@
     # to run something each time the environment is rebuilt, use the `onStart` hook
     onCreate = {
       install-go-tools = ''
-        go run github.com/golang/vscode-go/tools/installtools@latest
+        go install golang.org/x/tools/gopls@latest
       '';
       };
   };
