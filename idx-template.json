@@ -1,0 +1,9 @@
+{
+  "name": "Gemini + Go",
+  "description": "Start a simple generative AI app with Gemini and Go",
+  "categories": [
+    "AI & ML"
+  ],
+  "icon": "https://www.gstatic.com/monospace/231128/logo_gemini_512.png",
+  "publisher": "Google LLC"
+}
