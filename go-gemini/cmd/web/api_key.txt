@@ -1,0 +1,5 @@
+// 🔥 FILL THIS OUT FIRST! 🔥
+// 🔥 GET YOUR GEMINI API KEY AT 🔥
+// 🔥 https://makersuite.google.com/app/apikey 🔥
+-- api_key.txt --
+TODO

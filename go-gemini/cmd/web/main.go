@@ -11,15 +11,10 @@ import (
 	"path/filepath"
 
 	"github.com/google/generative-ai-go/genai"
+	"golang.org/x/tools/txtar"
 	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
 )
-
-// 🔥 FILL THIS OUT FIRST! 🔥
-// 🔥 GET YOUR GEMINI API KEY AT 🔥
-// 🔥 https://makersuite.google.com/app/apikey 🔥
-// This can also be provided as the API_KEY environment variable.
-var apiKey = "TODO"
 
 func usage() {
 	fmt.Fprintf(flag.CommandLine.Output(), "usage: web [options]\n")
@@ -31,12 +26,34 @@ var (
 	addr = flag.String("addr", "localhost:8080", "address to serve")
 )
 
-func generateHandler(w http.ResponseWriter, r *http.Request, model *genai.GenerativeModel) {
-	if apiKey == "TODO" {
-		http.Error(w, "Error: To get started, get an API key at https://makersuite.google.com/app/apikey and enter it in main.go", http.StatusInternalServerError)
+func generateHandler(w http.ResponseWriter, r *http.Request) {
+	// 🔥 FILL OUT THE API KEY IN "api_key.txt" FIRST! 🔥
+	// 🔥 GET YOUR GEMINI API KEY AT 🔥
+	// 🔥 https://makersuite.google.com/app/apikey 🔥
+	key, err := apiKey()
+	if err != nil {
+		log.Printf("Error reading API key: %v", err)
+	}
+	if key == "TODO" {
+		http.Error(w, "Error: To get started, get an API key at https://makersuite.google.com/app/apikey and enter it in api_key.txt", http.StatusInternalServerError)
 		return
 	}
 
+	// Create a new client with the API key.
+	client, err := genai.NewClient(context.Background(), option.WithAPIKey(key))
+	if err != nil {
+		log.Println(err)
+	}
+	defer client.Close()
+	model := client.GenerativeModel("gemini-pro-vision") // use 'gemini-pro' for text -> text
+	model.SafetySettings = []*genai.SafetySetting{
+		{
+			Category:  genai.HarmCategoryHarassment,
+			Threshold: genai.HarmBlockOnlyHigh,
+		},
+	}
+
+	// Read the chosen image and prompt from the request.
 	image, prompt := r.FormValue("chosen-image"), r.FormValue("prompt")
 	contents, err := os.ReadFile(filepath.Join("static", "images", filepath.Base(image)))
 	if err != nil {
@@ -106,28 +123,30 @@ func main() {
 		usage()
 	}
 
-	// Get the Gemini API key from the environment.
-	if key := os.Getenv("API_KEY"); key != "" {
-		apiKey = key
-	}
-
-	client, err := genai.NewClient(context.Background(), option.WithAPIKey(apiKey))
-	if err != nil {
-		log.Println(err)
-	}
-	defer client.Close()
-	model := client.GenerativeModel("gemini-pro-vision") // use 'gemini-pro' for text -> text
-	model.SafetySettings = []*genai.SafetySetting{
-		{
-			Category:  genai.HarmCategoryHarassment,
-			Threshold: genai.HarmBlockOnlyHigh,
-		},
-	}
-
 	// Serve static files and handle API requests.
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
-	http.HandleFunc("/api/generate", func(w http.ResponseWriter, r *http.Request) { generateHandler(w, r, model) })
+	http.HandleFunc("/api/generate", generateHandler)
 	http.HandleFunc("/", indexHandler)
 	log.Fatal(http.ListenAndServe(*addr, nil))
+}
+
+// apiKey reads the API key from the api_key.txt file, which is expected to be
+// a txtar archiver containing a single file named "api_key.txt" with the API key.
+// This is to allow the server to get the API key without restarting.
+// It is recommended to use a more secure method to store the API key in production,
+// such as passing it as an environment variable.
+func apiKey() (string, error) {
+	contents, err := os.ReadFile(filepath.Join("cmd", "web", "api_key.txt"))
+	if err != nil {
+		return "", err
+	}
+	var apiKey string
+	archive := txtar.Parse(contents)
+	for _, file := range archive.Files {
+		if file.Name == "api_key.txt" {
+			apiKey = string(file.Data)
+		}
+	}
+	return apiKey, nil
 }
