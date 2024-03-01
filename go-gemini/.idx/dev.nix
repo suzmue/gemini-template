@@ -12,15 +12,6 @@
   idx.extensions = [
     "golang.go"
   ];
-  idx.workspace = {
-    # runs when a workspace is first created with this `dev.nix` file
-    # to run something each time the environment is rebuilt, use the `onStart` hook
-    onCreate = {
-      install-go-tools = ''
-        go install golang.org/x/tools/gopls@latest
-      '';
-      };
-  };
   # preview configuration, identical to monospace.json
   idx.previews = {
     enable = true;
