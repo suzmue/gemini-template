@@ -8,11 +8,15 @@ form.onsubmit = async (ev) => {
     var data = new FormData(form);
     var request = new XMLHttpRequest();
     request.open("POST", "/api/generate");
-    request.send(data);
     request.onload = function () {
         // Read the response and interpret the output as markdown.
-        let md = window.markdownit();
-        output.innerHTML = md.render(request.responseText);
+        if (request.responseText.startsWith("<html>")) {
+            $('html').html(request.responseText); 
+        } else {
+            let md = window.markdownit();
+            output.innerHTML = md.render(request.responseText);
+        }
     };
+    request.send(data);
     return false;
 }
