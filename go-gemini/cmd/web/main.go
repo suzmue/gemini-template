@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"fmt"
 	"html/template"
@@ -41,7 +40,7 @@ func generateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create a new client with the API key.
-	client, err := genai.NewClient(context.Background(), option.WithAPIKey(key))
+	client, err := genai.NewClient(r.Context(), option.WithAPIKey(key))
 	if err != nil {
 		log.Println(err)
 	}
