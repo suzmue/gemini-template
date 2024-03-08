@@ -9,9 +9,17 @@ form.onsubmit = async (ev) => {
     var request = new XMLHttpRequest();
     request.open("POST", "/api/generate");
     request.onload = function () {
-        // Read the response and interpret the output as markdown.
-        let md = window.markdownit();
-        output.innerHTML = md.render(request.responseText);
+        if (true || (request.responseText.startsWith("<html>") && request.responseText.includes('spinner'))) {
+            // Replace the whole page with the spinner HTML
+            // sent by IDX when the server is down.
+            document.open();
+            document.write(request.responseText);
+            document.close();
+        } else {
+            // Read the response and interpret the output as markdown.
+            let md = window.markdownit();
+            output.innerHTML = md.render(request.responseText);    
+        }
     };
     request.send(data);
     return false;

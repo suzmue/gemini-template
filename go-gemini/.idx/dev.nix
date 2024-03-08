@@ -5,6 +5,8 @@
   # Use https://search.nixos.org/packages to  find packages
   packages = [
     pkgs.go
+    pkgs.nodejs_18
+    pkgs.nodePackages.nodemon
   ];
   # Sets environment variables in the workspace
   env = {};
@@ -17,7 +19,12 @@
     enable = true;
     previews = [
       {
-        command = ["go" "run" "./cmd/web" "-addr" "localhost:$PORT"];
+        command = [
+          "nodemon"
+          "--signal" "SIGHUP"
+          "-w" "."
+          "-e" "go,html,js"
+          "-x" "go run ./cmd/web -addr localhost:$PORT"];
         manager = "web";
         id = "web";
       }
