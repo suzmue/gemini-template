@@ -9,7 +9,7 @@ form.onsubmit = async (ev) => {
     var request = new XMLHttpRequest();
     request.open("POST", "/api/generate");
     request.onload = function () {
-        if (true || (request.responseText.startsWith("<html>") && request.responseText.includes('spinner'))) {
+        if (request.responseText.startsWith("<html>") && request.responseText.includes('spinner')) {
             // Replace the whole page with the spinner HTML
             // sent by IDX when the server is down.
             document.open();
