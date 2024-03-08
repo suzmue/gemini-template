@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/google/generative-ai-go/genai"
 	"golang.org/x/tools/txtar"
@@ -137,7 +138,7 @@ func main() {
 // It is recommended to use a more secure method to store the API key in production,
 // such as passing it as an environment variable.
 func apiKey() (string, error) {
-	contents, err := os.ReadFile(filepath.Join("cmd", "web", "api_key.txt"))
+	contents, err := os.ReadFile("api_key.txt")
 	if err != nil {
 		return "", err
 	}
@@ -148,5 +149,5 @@ func apiKey() (string, error) {
 			apiKey = string(file.Data)
 		}
 	}
-	return apiKey, nil
+	return strings.TrimSpace(apiKey), nil
 }
