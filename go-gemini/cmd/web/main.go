@@ -36,7 +36,6 @@ var (
 
 func generateHandler(w http.ResponseWriter, r *http.Request, model *genai.GenerativeModel) {
 	if apiKey == "TODO" {
-		// This can also be provided as the API_KEY environment variable.
 		http.Error(w, "Error: To get started, get an API key at https://makersuite.google.com/app/apikey and enter it in cmd/web/main.go and then hard restart the preview", http.StatusInternalServerError)
 		return
 	}
