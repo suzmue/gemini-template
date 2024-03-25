@@ -41,7 +41,7 @@ func generateHandler(w http.ResponseWriter, r *http.Request, llm *googleai.Googl
 	}
 
 	image, prompt := r.FormValue("chosen-image"), r.FormValue("prompt")
-	contents, err := os.ReadFile(filepath.Join("static", "images", filepath.Base(image)))
+	imgData, err := os.ReadFile(filepath.Join("static", "images", filepath.Base(image)))
 	if err != nil {
 		log.Printf("Unable to read image %s: %v\n", image, err)
 		http.Error(w, "Error: unable to generate content", http.StatusInternalServerError)
@@ -52,7 +52,7 @@ func generateHandler(w http.ResponseWriter, r *http.Request, llm *googleai.Googl
 		{
 			Role: schema.ChatMessageTypeHuman,
 			Parts: []llms.ContentPart{
-				llms.BinaryPart("image/jpeg", contents),
+				llms.BinaryPart("image/jpeg", imgData),
 				llms.TextPart(prompt),
 			},
 		},
