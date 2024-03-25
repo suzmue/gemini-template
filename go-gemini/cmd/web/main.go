@@ -17,8 +17,11 @@ import (
 
 // 🔥 FILL THIS OUT FIRST! 🔥
 // 🔥 GET YOUR GEMINI API KEY AT 🔥
-// 🔥 https://makersuite.google.com/app/apikey 🔥
-// This can also be provided as the API_KEY environment variable.
+// 🔥 https://aistudio.google.com/app/apikey 🔥
+// 🔥 This can also be provided as the API_KEY environment variable. 🔥
+//
+// NOTE: Make sure to `Hard Restart` the web preview in IDX
+// when updating this variable, using `> Project IDX: Hard Restart`.
 var apiKey = "TODO"
 
 func usage() {
@@ -33,7 +36,7 @@ var (
 
 func generateHandler(w http.ResponseWriter, r *http.Request, model *genai.GenerativeModel) {
 	if apiKey == "TODO" {
-		http.Error(w, "Error: To get started, get an API key at https://makersuite.google.com/app/apikey and enter it in main.go", http.StatusInternalServerError)
+		http.Error(w, "Error: To get started, get an API key at https://makersuite.google.com/app/apikey and enter it in cmd/web/main.go and then hard restart the preview", http.StatusInternalServerError)
 		return
 	}
 
