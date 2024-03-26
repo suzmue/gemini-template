@@ -5,5 +5,14 @@
     "AI & ML"
   ],
   "icon": "https://www.gstatic.com/monospace/231128/logo_gemini_512.png",
-  "publisher": "Google LLC"
+  "publisher": "Google LLC",
+  "params": [
+    {
+      "id": "useLangChain",
+      "name": "Use LangChain",
+      "type": "boolean",
+      "default": false,
+      "required": false
+    }
+  ]
 }
